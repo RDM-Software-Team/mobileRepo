@@ -1,1 +1,0 @@
-POST http://www.rdmteam.wuaze.com/register.php?firstName="df",lastName="adsasd",email="www.km@gmail.com",phone="0983128394",ddress="12 sd",pwrd="tim100@"
