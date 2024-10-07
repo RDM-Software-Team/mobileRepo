@@ -8,11 +8,6 @@ ini_set('display_errors', 1);
 $response = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Remove debug prints like these
-    // echo "Raw POST Data: ";
-    // print_r($_POST);
-    // echo "Raw GET Data: ";
-    // print_r($_GET);
 
     $token = $_POST['token'] ?? $_GET['token'] ?? null;
     $category = $_POST['category'] ?? $_GET['category'] ?? '';
@@ -50,10 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET
             exit;
         }
 
+        // Query to fetch products with the provided category
         $query = "SELECT product_id, pName, discription, price, category, images 
-                    FROM products 
-                    WHERE category = ? 
-                    LIMIT ? OFFSET ?";
+                  FROM products 
+                  WHERE category = ? 
+                  LIMIT ? OFFSET ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("sii", $category, $limit, $offset);
         if (!$stmt->execute()) {
@@ -74,14 +70,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET
                 $imageData = $row['images'];
                 $imageName = 'image_' . $row['product_id'] . '.jpg';
                 $imagePath = 'images/' . $imageName;
-                file_put_contents($imagePath, $imageData);
-                $row['image_path'] = $imagePath;
+                
+                // Save the image data to a file if not already saved
+                if (!file_exists($imagePath)) {
+                    file_put_contents($imagePath, $imageData);
+                }
+
+                // Include the image path in the response
+                $row['image_path'] = "http://192.168.18.113/computer_Complex_mobile/images/" . $imageName; // Replace with your actual URL
                 unset($row['images']);
             }
             $products[] = $row;
         }
         $stmt->close();
 
+        // Count total items in the category
         $count_query = "SELECT COUNT(*) FROM products WHERE category = ?";
         $count_stmt = $conn->prepare($count_query);
         $count_stmt->bind_param("s", $category);
@@ -96,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET
 
         $more_pages = ($total_items > $page * $limit);
 
+        // Include the product details and more pages info in the response
         $response = ["products" => $products, "more_pages" => $more_pages];
         echo json_encode($response);
     } else {
