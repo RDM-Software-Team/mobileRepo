@@ -1,26 +1,37 @@
 <?php
-    /*$servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "computer_complex";
-    
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-        */
-// PHP Data Objects(PDO) Sample Code:
+// PDO Connection
 try {
     $conn = new PDO("sqlsrv:server = tcp:disappdd.database.windows.net,1433; Database = ComputerCmplex", "st10107568", "dianaK1209$");
+    // Set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-}
-catch (PDOException $e) {
-    print("Error connecting to SQL Server.");
-    die(print_r($e));
+
+    echo "Connected successfully using PDO";  // Optional message for successful connection
+} catch (PDOException $e) {
+    // Display detailed error information
+    die("Error connecting to SQL Server using PDO: " . $e->getMessage());
 }
 
-// SQL Server Extension Sample Code:
-$connectionInfo = array("UID" => "st10107568", "pwd" => "dianaK1209$", "Database" => "ComputerCmplex", "LoginTimeout" => 30, "Encrypt" => 1, "TrustServerCertificate" => 0);
+// SQLSRV Connection
+/*$connectionInfo = array(
+    "UID" => "st10107568",
+    "PWD" => "dianaK1209$", 
+    "Database" => "ComputerCmplex",
+    "LoginTimeout" => 30,
+    "Encrypt" => 1,
+    "TrustServerCertificate" => 0
+);
 $serverName = "tcp:disappdd.database.windows.net,1433";
-$conn = sqlsrv_connect($serverName, $connectionInfo);
+$connSqlsrv = sqlsrv_connect($serverName, $connectionInfo);
+
+if ($connSqlsrv) {
+    echo "Connected successfully using SQLSRV";  // Optional message for successful connection
+} else {
+    // Retrieve detailed error information if connection fails
+    $errors = sqlsrv_errors();
+    foreach ($errors as $error) {
+        echo "SQLSRV Error: " . $error['message'] . "<br/>";
+    }
+}
+
+
+*/

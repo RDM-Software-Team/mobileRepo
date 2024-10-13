@@ -27,34 +27,37 @@ if (empty($token)) {
     output_json(["error" => "Token is required"]);
 }
 
-$stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
-$stmt->bind_param("s", $token);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$stmt->close();
+try {
+    // Step 1: Get customer ID from session token
+    $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+    $stmt->execute([$token]);
+    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$customer || !isset($customer['customer_id'])) {
+        output_json(["error" => "Invalid token"]);
+    }
 
-if (!$row || !isset($row['customer_id'])) {
-    output_json(["error" => "Invalid token"]);
+    $customer_id = $customer['customer_id'];
+
+    // Step 2: Get repairs for the customer
+    $stmt = $conn->prepare("SELECT repair_id, description, booked_date, image FROM repairs WHERE customer_id = ?");
+    $stmt->execute([$customer_id]);
+    $repairs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Update the image path for each repair
+    foreach ($repairs as &$repair) {
+        $repair['image'] = "http://192.168.18.113/computer_Complex_mobile/uploads/repairs/" . basename($repair['image']);
+    }
+
+    // Clear the output buffer and send the JSON response
+    ob_end_clean();
+    output_json($repairs);
+
+} catch (Exception $e) {
+    // Handle any exception and return an error message
+    ob_end_clean();
+    output_json(["error" => "Error: " . $e->getMessage()]);
+} finally {
+    $conn = null; // Close the PDO connection
 }
-
-$customer_id = $row['customer_id'];
-
-$stmt = $conn->prepare("SELECT repair_id, description, booked_date, image FROM repairs WHERE customer_id = ?");
-$stmt->bind_param("i", $customer_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$repairs = [];
-while ($row = $result->fetch_assoc()) {
-    $row['image'] = "http://192.168.18.113/computer_Complex_mobile/uploads/repairs/" . basename($row['image']);
-    $repairs[] = $row;
-}
-
-$stmt->close();
-$conn->close();
-
-// Clear the output buffer and send the JSON response
-ob_end_clean();
-output_json($repairs);
 ?>
