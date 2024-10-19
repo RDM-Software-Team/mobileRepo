@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Verify the token and retrieve customer_id
-        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+        // Verify the token and retrieve customer_id (using SQL Server's GETDATE())
+        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
         $stmt->execute([$token]);
         $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ->modify('+5 minutes')
                         ->format('Y-m-d H:i:s');
 
-            // Update token and expiry
+            // Update token and expiry for the customer
             $update_stmt = $conn->prepare("UPDATE sessions SET token = ?, expiry = ? WHERE customer_id = ?");
             $update_stmt->execute([$new_token, $expiry, $customer['customer_id']]);
 

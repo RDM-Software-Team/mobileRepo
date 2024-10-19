@@ -22,7 +22,7 @@ try {
     $conn->beginTransaction();
 
     // Fetch customer_id using token
-    $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+    $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
     $stmt->execute([$token]);  // Bind parameters as an array
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 

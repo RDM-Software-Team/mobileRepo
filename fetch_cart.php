@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET
     if ($token) {
         try {
             // Step 1: Get customer ID from session token
-            $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+            $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
             $stmt->execute([$token]);
             $customer = $stmt->fetch(PDO::FETCH_ASSOC);
             

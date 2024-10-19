@@ -2,10 +2,12 @@
 // PDO Connection
 try {
     $conn = new PDO("sqlsrv:server = tcp:disappdd.database.windows.net,1433; Database = ComputerCmplex", "st10107568", "dianaK1209$");
+    //$conn = new PDO("sqlsrv:server = tcp:masterst10157545.database.windows.net,1433; Database = testing", "st10157545", "Willowmead100@");
+
     // Set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    echo "Connected successfully using PDO";  // Optional message for successful connection
+    //echo "Connected successfully using PDO";  // Optional message for successful connection
 } catch (PDOException $e) {
     // Display detailed error information
     die("Error connecting to SQL Server using PDO: " . $e->getMessage());

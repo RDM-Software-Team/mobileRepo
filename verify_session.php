@@ -13,6 +13,9 @@ function sendResponse($status, $message, $code = 200, $data = null) {
     exit;
 }
 
+// Log the request method to troubleshoot
+error_log("Request method: " . $_SERVER['REQUEST_METHOD']);
+
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendResponse("error", "Invalid request method", 405);
@@ -27,7 +30,8 @@ $token = $_POST['token'];
 
 try {
     // Prepare and execute query to check if the session is valid
-    $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+    // Use GETDATE() instead of NOW() for SQL Server
+    $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
     $stmt->execute([$token]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 

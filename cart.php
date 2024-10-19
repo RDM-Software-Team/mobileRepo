@@ -24,53 +24,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Fetch customer_id based on the token
-        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
-        if (!$stmt) {
-            throw new Exception("Failed to prepare statement for fetching customer_id: " . $conn->error);
-        }
-        $stmt->bind_param("s", $token);
-        $stmt->execute();
-        $stmt->bind_result($customer_id);
-        $stmt->fetch();
-        $stmt->close();
-
+        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
+        $stmt->execute([$token]);
+        $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+        
         // If no customer_id found, return an error
-        if (!$customer_id) {
+        if (!$customer) {
             echo json_encode(["error" => "Invalid or expired token"]);
             exit;
         }
+        
+        $customer_id = $customer['customer_id'];
 
         // Check if the user has an active cart
         $stmt = $conn->prepare("SELECT cart_id FROM carts WHERE customer_id = ? AND status = 'active'");
-        if (!$stmt) {
-            throw new Exception("Failed to prepare statement for checking cart: " . $conn->error);
-        }
-        $stmt->bind_param("i", $customer_id);
-        $stmt->execute();
-        $stmt->bind_result($cart_id);
-        $stmt->fetch();
-        $stmt->close();
+        $stmt->execute([$customer_id]);
+        $cart = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // If no active cart, create a new one
-        if (!$cart_id) {
-            $stmt = $conn->prepare("INSERT INTO carts (customer_id, cart_created, status) VALUES (?, NOW(), 'active')");
-            if (!$stmt) {
-                throw new Exception("Failed to prepare statement for creating a cart: " . $conn->error);
-            }
-            $stmt->bind_param("i", $customer_id);
-            $stmt->execute();
-            $cart_id = $stmt->insert_id;
-            $stmt->close();
+        if (!$cart) {
+            $stmt = $conn->prepare("INSERT INTO carts (customer_id, cart_created, status) VALUES (?, GETDATE(), 'active')");
+            $stmt->execute([$customer_id]);
+            $cart_id = $conn->lastInsertId(); // Get the last inserted ID
+        } else {
+            $cart_id = $cart['cart_id'];
         }
 
         // Add or update the cart item
         $stmt = $conn->prepare("REPLACE INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)");
-        if (!$stmt) {
-            throw new Exception("Failed to prepare statement for updating cart items: " . $conn->error);
-        }
-        $stmt->bind_param("iii", $cart_id, $product_id, $quantity);
-        $stmt->execute();
-        $stmt->close();
+        $stmt->execute([$cart_id, $product_id, $quantity]);
 
         echo json_encode(["message" => "Cart updated successfully"]);
     } catch (Exception $e) {
@@ -79,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } finally {
         // Ensure the database connection is closed
         if ($conn) {
-            $conn->close();
+            $conn = null; // Use null to close the connection in PDO
         }
     }
 }

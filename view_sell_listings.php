@@ -39,7 +39,7 @@ if (empty($token)) {
 
 try {
     // Prepare the statement to validate the session token
-    $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+    $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
     $stmt->execute([$token]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 

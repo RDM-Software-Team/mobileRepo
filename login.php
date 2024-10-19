@@ -26,8 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET
                 $expiry->modify('+5 minutes');
                 $expiryFormatted = $expiry->format('Y-m-d H:i:s');
 
-                // Replace or insert session token
-                $stmt = $conn->prepare("REPLACE INTO sessions (customer_id, token, expiry) VALUES (?, ?, ?)");
+                // Use MERGE to insert or update the session token
+                $stmt = $conn->prepare("
+                    MERGE INTO sessions AS target
+                    USING (SELECT ? AS customer_id, ? AS token, ? AS expiry) AS source
+                    ON (target.customer_id = source.customer_id)
+                    WHEN MATCHED THEN
+                        UPDATE SET token = source.token, expiry = source.expiry
+                    WHEN NOT MATCHED THEN
+                        INSERT (customer_id, token, expiry) VALUES (source.customer_id, source.token, source.expiry);
+                ");
                 $stmt->execute([$user['customer_id'], $token, $expiryFormatted]);
 
                 echo json_encode(["token" => $token]);

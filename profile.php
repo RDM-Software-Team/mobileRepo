@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Verify token and fetch customer ID
-        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
         $stmt->execute([$token]);
         $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 

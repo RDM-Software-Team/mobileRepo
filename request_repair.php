@@ -46,7 +46,7 @@ if (isset($_FILES['image']) && $_FILES['image']['size'] > 0) {
 
     try {
         // Verify token and get customer_id
-        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+        $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
         $stmt->execute([$token]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($token && $payment_type && $order_id) {
         try {
             // Step 1: Get customer ID from session token
-            $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > NOW()");
+            $stmt = $conn->prepare("SELECT customer_id FROM sessions WHERE token = ? AND expiry > GETDATE()");
             $stmt->execute([$token]);  // Pass parameters as an array to `execute()`
             $customer = $stmt->fetch(PDO::FETCH_ASSOC);  // Fetch as associative array
 
