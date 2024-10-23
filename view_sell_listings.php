@@ -56,7 +56,7 @@ try {
 
     // Update the image URLs with the full path
     foreach ($sells as &$sell) {
-        $base_url = "http://192.168.18.113/computer_Complex_mobile/uploads/sells/";
+        $base_url = "https://backend-php-dsehdsc0adbxbuey.southafricanorth-01.azurewebsites.net/uploads/sells/";
         $sell['image1'] = $base_url . basename($sell['image1']);
         $sell['image2'] = $base_url . basename($sell['image2']);
         $sell['image3'] = $base_url . basename($sell['image3']);

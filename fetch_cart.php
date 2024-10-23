@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET
                         $imageName = 'image_' . $row['product_id'] . '.jpg';
                         $imagePath = 'images/' . $imageName;
                         file_put_contents($imagePath, $imageData); // Save image to file
-                        $row['image_path'] = "http://192.168.18.113/computer_Complex_mobile/" . $imagePath;
+                        $row['image_path'] = "https://backend-php-dsehdsc0adbxbuey.southafricanorth-01.azurewebsites.net/" . $imagePath;
                         unset($row['images']); // Remove binary image data
                     } else {
                         $row['image_path'] = null; // Default image path

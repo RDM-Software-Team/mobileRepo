@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET
                         file_put_contents($imagePath, $imageData);
                     }
 
-                    $row['image_path'] = "http://192.168.18.113/computer_Complex_mobile/" . $imagePath; // Replace with your actual URL
+                    $row['image_path'] = "https://backend-php-dsehdsc0adbxbuey.southafricanorth-01.azurewebsites.net/" . $imagePath; // Replace with your actual URL
                     unset($row['images']); // Remove binary data from the response
                 }
                 $products[] = $row;

@@ -46,7 +46,7 @@ try {
 
     // Update the image path for each repair
     foreach ($repairs as &$repair) {
-        $repair['image'] = "http://192.168.18.113/computer_Complex_mobile/uploads/repairs/" . basename($repair['image']);
+        $repair['image'] = "https://backend-php-dsehdsc0adbxbuey.southafricanorth-01.azurewebsites.net/uploads/repairs/" . basename($repair['image']);
     }
 
     // Clear the output buffer and send the JSON response
